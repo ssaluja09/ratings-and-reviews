@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
-@Table(name = "review", uniqueConstraints =
+/*@Table(name = "review", uniqueConstraints =
     @UniqueConstraint(columnNames = {"author_id", "product_id"})
-)
+)*/
 @Data
 /*@Builder(toBuilder = true)*/
 public class Review {
