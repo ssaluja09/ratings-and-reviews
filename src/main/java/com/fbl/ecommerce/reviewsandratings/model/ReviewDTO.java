@@ -1,7 +1,9 @@
 package com.fbl.ecommerce.reviewsandratings.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Data
 @NoArgsConstructor
@@ -26,7 +28,8 @@ public class ReviewDTO {
         this.author = review.getAuthorId();
         this.entityId = review.getProductId();
         this.title = review.getTitle();
-        this.description = review.getReviewText();
+        this.description = (StringUtils.isEmpty(review.getSecondaryText())) ?
+                review.getReviewText() : review.getSecondaryText();
         this.rating = review.getRating();
         this.reviewStatus = review.getReviewStatus();
     }

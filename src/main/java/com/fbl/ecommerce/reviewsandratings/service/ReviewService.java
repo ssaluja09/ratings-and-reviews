@@ -2,15 +2,13 @@ package com.fbl.ecommerce.reviewsandratings.service;
 
 import com.fbl.ecommerce.reviewsandratings.dao.ReviewRepository;
 import com.fbl.ecommerce.reviewsandratings.exception.NotFoundException;
-import com.fbl.ecommerce.reviewsandratings.model.RatingDTO;
-import com.fbl.ecommerce.reviewsandratings.model.Review;
-import com.fbl.ecommerce.reviewsandratings.model.ReviewDTO;
-import com.fbl.ecommerce.reviewsandratings.model.RatingReviewListDTO;
+import com.fbl.ecommerce.reviewsandratings.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,14 +55,14 @@ public class ReviewService {
         return reviewDTO;
     }
 
-    public RatingReviewListDTO getAllReviewsByProduct(long productId) {
+    public RatingReviewListDTO getAllReviewsByProduct(long productId, Pageable pageable) {
         RatingDTO rating = null;
         try {
             rating = getAverageRatingByProduct(productId);
         } catch (NotFoundException e) {
             return RatingReviewListDTO.of(rating, new ArrayList<>(0));
         }
-        List<Review> reviewList = reviewRepository.findAllByProductId(productId);
+        List<Review> reviewList = reviewRepository.findAllByProductId(productId, pageable);
         List<ReviewDTO> dtoList = new ArrayList<>();
         for (Review review : reviewList) {
             ReviewDTO dto = new ReviewDTO(review);

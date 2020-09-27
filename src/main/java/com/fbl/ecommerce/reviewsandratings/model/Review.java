@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "review", uniqueConstraints =
@@ -34,16 +36,18 @@ public class Review {
 
     private ReviewStatus reviewStatus;
 
-    /*public static Review of(ReviewDTO reviewDTO) {
-        return Review.builder()
-                .authorId(reviewDTO.getAuthor())
-                .productId(reviewDTO.getEntityId())
-                .title(reviewDTO.getTitle())
-                .reviewText(reviewDTO.getDescription())
-                .rating(reviewDTO.getRating())
-                .reviewStatus(StringUtils.isEmpty(reviewDTO.getReviewStatus()) ? ReviewStatus.IN_REVIEW : reviewDTO.getReviewStatus())
-                .build();
-    }*/
+    private Sentiment sentimentScore;
+/*
+    @Temporal(TemporalType.TIMESTAMP)
+    Date creationTime;*/
+
+    private String secondaryText;
+
+    @Column(name = "creation_time", columnDefinition = "TIMESTAMP")
+    private LocalDateTime creationTime;
+
+/*
+    private boolean isProfane;*/
 
     public Review() {
 
@@ -52,10 +56,11 @@ public class Review {
     public Review(ReviewDTO reviewDTO) {
         this.authorId = reviewDTO.getAuthor();
         this.productId = reviewDTO.getEntityId();
-        this.rating = reviewDTO.getRating();
-        this.reviewText = reviewDTO.getDescription();
         this.title = reviewDTO.getTitle();
+        this.reviewText = reviewDTO.getDescription();
+        this.rating = reviewDTO.getRating();
         this.reviewStatus = StringUtils.isEmpty(reviewDTO.getReviewStatus()) ? ReviewStatus.IN_REVIEW : reviewDTO.getReviewStatus();
+        this.creationTime = LocalDateTime.now();
     }
 
     public Review(long authorId, long productId, String title, String reviewText, int rating) {
@@ -65,6 +70,7 @@ public class Review {
         this.reviewText = reviewText;
         this.rating = rating;
         this.reviewStatus = ReviewStatus.IN_REVIEW;
+        this.creationTime = LocalDateTime.now();
     }
 }
 

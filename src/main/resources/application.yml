@@ -15,3 +15,13 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
+scheduler:
+  batchSize: 100
+
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: full

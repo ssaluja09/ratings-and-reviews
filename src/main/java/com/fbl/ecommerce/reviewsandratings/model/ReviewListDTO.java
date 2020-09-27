@@ -9,11 +9,11 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class ReviewListDTO {
 
-    private List<ReviewDTO> reviewList;
+    private List<ReviewDTO> reviews;
 
-    public static ReviewListDTO of(RatingDTO rating, List<ReviewDTO> list) {
+    public static ReviewListDTO of(List<ReviewDTO> list) {
         return ReviewListDTO.builder()
-                .reviewList(list)
+                .reviews(list)
                 .build();
     }
 
