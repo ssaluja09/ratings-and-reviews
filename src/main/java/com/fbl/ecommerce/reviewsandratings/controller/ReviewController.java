@@ -94,6 +94,14 @@ public class ReviewController {
         return "File Successfully Uploaded";
     }
 
+    @GetMapping("/productList")
+    public List<Long> getProductList(@RequestParam(required = false) Long offset,
+                                     @RequestParam(required = false) Integer limit) {
+        long offsetValue = (offset == null) ? OFFSET_DEFAULT : offset.longValue();
+        int limitValue = (limit == null) ? LIMIT_DEFAULT : limit.intValue();
+        return reviewService.getAllProducts(offsetValue, limitValue);
+    }
+
     /*@ExceptionHandler(StorageFileNotFoundException.class)
     public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
         return ResponseEntity.notFound().build();
@@ -112,6 +120,10 @@ public class ReviewController {
             }
             case "lowest rated": {
                 sortObj = Sort.by(Sort.Direction.ASC, "rating");
+                break;
+            }
+            case "productId": {
+                sortObj = Sort.by(Sort.Direction.ASC, "productId");
                 break;
             }
             default: {

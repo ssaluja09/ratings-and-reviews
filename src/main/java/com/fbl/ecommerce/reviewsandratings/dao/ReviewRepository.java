@@ -25,4 +25,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             " WHERE review_status = '0'" +
             " limit :limit ", nativeQuery = true)
     List<Review> findDrafts(@Param("limit") int limit);
+
+    @Query(value = "SELECT DISTINCT product_Id from Review offset :offset limit :limit", nativeQuery = true)
+    List<Long> findAllProductIds(long offset, int limit);
 }

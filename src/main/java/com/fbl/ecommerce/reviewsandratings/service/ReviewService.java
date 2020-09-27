@@ -135,4 +135,8 @@ public class ReviewService {
         }
         return true;
     }
+
+    public List<Long> getAllProducts(long offsetValue, int limitValue) {
+        return reviewRepository.findAllProductIds(offsetValue, limitValue);
+    }
 }
