@@ -1,5 +1,6 @@
 package com.fbl.ecommerce.reviewsandratings.service;
 
+import com.fbl.ecommerce.reviewsandratings.dao.HelpfulRepository;
 import com.fbl.ecommerce.reviewsandratings.dao.ReviewRepository;
 import com.fbl.ecommerce.reviewsandratings.exception.NotFoundException;
 import com.fbl.ecommerce.reviewsandratings.model.*;
@@ -17,10 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -30,6 +28,9 @@ public class ReviewService {
 
     @Autowired
     ReviewRepository reviewRepository;
+
+    @Autowired
+    HelpfulService helpfulService;
 
     public Optional<ReviewDTO> addReview(ReviewDTO reviewDTO) {
 
@@ -55,21 +56,35 @@ public class ReviewService {
         return reviewDTO;
     }
 
-    public RatingReviewListDTO getAllReviewsByProduct(long productId, Pageable pageable) {
+    public RatingReviewListDTO getAllReviewsByProduct(long productId, Pageable pageable, boolean sortByHelpfulness) {
         RatingDTO rating = null;
         try {
             rating = getAverageRatingByProduct(productId);
         } catch (NotFoundException e) {
-            return RatingReviewListDTO.of(rating, new ArrayList<>(0));
+            return null;
         }
         List<Review> reviewList = reviewRepository.findAllByProductId(productId, pageable);
         List<ReviewDTO> dtoList = new ArrayList<>();
         for (Review review : reviewList) {
-            ReviewDTO dto = new ReviewDTO(review);
+            Optional<HelpfulCountDTO> helpfulCountDTO = helpfulService.getHelpfulCount(review.getId());
+            ReviewDTO dto;
+            if (helpfulCountDTO.isPresent())
+                dto = new ReviewDTO(review, helpfulCountDTO.get());
+            else
+                dto = new ReviewDTO(review);
             dtoList.add(dto);
+        }
+        if (sortByHelpfulness) {
+            sortReviewsByHelpfulness(dtoList);
         }
         RatingReviewListDTO ratingReviewListDTO = RatingReviewListDTO.of(rating, dtoList);
         return ratingReviewListDTO;
+    }
+
+    private void sortReviewsByHelpfulness(List<ReviewDTO> dtoList) {
+        Collections.sort(dtoList, (o1, o2) -> {
+            return o2.getHelpfulnessScore().getHelpfulCount() - o1.getHelpfulnessScore().getHelpfulCount();
+        });
     }
 
     public List<ReviewDTO> getAllReviewsByUser(long authorId) {

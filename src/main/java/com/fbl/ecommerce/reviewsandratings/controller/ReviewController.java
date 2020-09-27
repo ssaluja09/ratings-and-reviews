@@ -25,6 +25,8 @@ public class ReviewController {
 
     private static final int OFFSET_DEFAULT = 0;
 
+    private static final String HELPFULNESS = "helpfulness";
+
     private static final String SORT_BY_DEFAULT = "highest rated";
 
     @Autowired
@@ -54,8 +56,6 @@ public class ReviewController {
     @GetMapping("/averageRatings")
     public ResponseEntity<?> getAverageRating(@RequestParam long entityId) {
         try {
-
-
             return ResponseEntity.ok()
                     .body(reviewService.getAverageRatingByProduct(entityId));
 
@@ -66,16 +66,26 @@ public class ReviewController {
     }
 
     @GetMapping("/reviews")
-    public RatingReviewListDTO getAllReviews(@RequestParam long entityId,
-                                             @RequestParam(required = false) Long offset,
-                                             @RequestParam(required = false) Integer limit,
-                                             @RequestParam(required = false) String sortBy) {
+    public ResponseEntity<?> getAllReviews(@RequestParam long entityId,
+                                           @RequestParam(required = false) Long offset,
+                                           @RequestParam(required = false) Integer limit,
+                                           @RequestParam(required = false) String sortBy) {
 
 
         Sort sortObj = decideSortingOrder(sortBy);
         long offsetValue = (offset == null) ? OFFSET_DEFAULT : offset.longValue();
         int limitValue = (limit == null) ? LIMIT_DEFAULT : limit.intValue();
-        return reviewService.getAllReviewsByProduct(entityId, new OffsetBasedPageRequest(offsetValue, limitValue, sortObj));
+        boolean sortByHelpfulness = sortBy.equals(HELPFULNESS);
+        RatingReviewListDTO ratingReviewListDTO = reviewService.getAllReviewsByProduct(entityId,
+                new OffsetBasedPageRequest(offsetValue, limitValue, sortObj), sortByHelpfulness);
+
+        if (ratingReviewListDTO != null) {
+            return ResponseEntity.ok()
+                    .body(ratingReviewListDTO);
+        } else {
+            return new ResponseEntity(new Error("404", "Product not found"),
+                    HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/myReviews")
@@ -120,10 +130,6 @@ public class ReviewController {
             }
             case "lowest rated": {
                 sortObj = Sort.by(Sort.Direction.ASC, "rating");
-                break;
-            }
-            case "productId": {
-                sortObj = Sort.by(Sort.Direction.ASC, "productId");
                 break;
             }
             default: {

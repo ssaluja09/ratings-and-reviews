@@ -23,7 +23,14 @@ public class ReviewDTO {
 
     private ReviewStatus reviewStatus;
 
+    private HelpfulCountDTO helpfulnessScore;
+
     public ReviewDTO(Review review) {
+        this(review, new HelpfulCountDTO(0, 0));
+
+    }
+
+    public ReviewDTO(Review review, HelpfulCountDTO helpfulCountDTO) {
         this.reviewId = review.getId();
         this.author = review.getAuthorId();
         this.entityId = review.getProductId();
@@ -32,5 +39,6 @@ public class ReviewDTO {
                 review.getReviewText() : review.getSecondaryText();
         this.rating = review.getRating();
         this.reviewStatus = review.getReviewStatus();
+        this.helpfulnessScore = helpfulCountDTO;
     }
 }
